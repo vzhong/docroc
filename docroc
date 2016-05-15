@@ -1,4 +1,4 @@
-#!/usr/bin/env th
+#!/usr/bin/env lua
 
 local lapp = require 'pl.lapp'
 local opt = lapp [[
@@ -31,12 +31,10 @@ if config.site_author then
   config.copyright = 'Copyright '..os.date('%Y')..' '..config.site_author
 end
 
-local writer = require 'writer'
+local writer = require 'docroc.writer'
 writer.process_dir(opt.src_dir, opt.doc_dir)
 
 local name2category = {}
-
-local tl = require 'torchlib'
 
 for root, dirs, files in dir.walk(opt.doc_dir) do
   for fname in files:iter() do

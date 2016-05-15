@@ -71,11 +71,8 @@ local process_dir = function(src_dir, doc_dir, silent)
     dir.makepath(doc_dir)
   end
 
-  local map = {}
-
   for root, dirs, files in dir.walk(src_dir) do
-    local base_dir = path.basename(root)
-    for fname in files:iter() do
+    for _, fname in ipairs(files) do
       if stringx.endswith(fname, '.lua') then
         local src_file = path.join(root, fname)
         say('processing '..src_file)

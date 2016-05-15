@@ -1,10 +1,29 @@
-docroc
-===
+# docroc
 
 Minimal library that parses formatted Lua comments and returns them as a table.
 
-Usage
----
+## Installation
+
+```sh
+https://github.com/vzhong/docroc.git
+cd docroc
+luarocks make
+```
+
+For Markdown generation, copy the `docroc` file to somewhere on your path.
+
+```sh
+cp docroc /usr/local/bin/docroc
+```
+
+## Usage
+
+Docroc can be used both to generate markdown documents from Lua comments or to parse Lua comments programmatically.
+
+### Markdown Generation
+
+
+### Parsing
 
 ```lua
 local docroc = require 'docroc'
