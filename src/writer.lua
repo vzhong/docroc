@@ -4,8 +4,11 @@ local dir = require 'pl.dir'
 local file = require 'pl.file'
 local stringx = require 'pl.stringx'
 
---- @module docroc.writer
+--- @module writer
 -- Utilities for converting parsed comments to Markdown files.
+
+local writer = {}
+docroc.writer = writer
 
 local writers = {
   arg = function(el)
@@ -17,7 +20,7 @@ local writers = {
     return d
   end,
   code = function(el)
-    return '```\n'..(el.language or '')..el.code..'\n```'
+    return '```'..(el.language or '') .. '\n'..el.code..'\n```'
   end,
   returns = function(el)
     return '- '..('`'..el.type..'`' or '')..el.description
@@ -77,11 +80,11 @@ local process_header = function(comment, opt)
   else
     local name = comment.context:match('^[local]*%s*[function]*%s*(.*)'):gsub('[^)%w]*$', '')
     doc = doc .. '## ' .. name .. '\n'
-    doc = doc .. 'Definition'
+    doc = doc .. '```\n' .. comment.context:gsub('%s*=%s*[^%w]+$', '') .. '\n```\n'
     if opt.github_src_dir then
-      doc = doc .. ' ([view source](' .. comment.filename:gsub(opt.src_dir, opt.github_src_dir) .. '#L' .. comment.linenum .. '))\n'
+      doc = doc .. '[View source](' .. comment.filename:gsub(opt.src_dir, opt.github_src_dir) .. '#L' .. comment.linenum .. ')\n'
     end
-    doc = doc .. ':\n```\n' .. comment.context:gsub('%s*=%s*[^%w]+$', '') .. '\n```\n'
+
   end
   return doc
 end
@@ -109,7 +112,12 @@ end
 -- A Markdown file will be generated for each `.lua` source file found in `src_dir`
 -- at the corresponding location in `doc_dir`. For example, `src/foo/bar.lua` will
 -- have a corresponding `src/foo/bar.md`.
-local process_dir = function(src_dir, doc_dir, github_src_dir, silent)
+--
+-- Example:
+-- @code {lua}
+-- local writer = require 'docdoc.writer'
+-- writer.process_dir('src', 'docs', 'http://github.com/vzhong/docroc/blob/master/src/')
+function writer.process_dir(src_dir, doc_dir, github_src_dir, silent)
   local opt = {github_src_dir=github_src_dir, silent=silent, src_dir=src_dir}
   local say = function(str)
     if not silent then
@@ -141,6 +149,4 @@ local process_dir = function(src_dir, doc_dir, github_src_dir, silent)
   return generated
 end
 
-return {
-  process_dir=process_dir,
-}
+return writer

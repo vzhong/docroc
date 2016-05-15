@@ -83,7 +83,7 @@ docroc.processors = {
 
   code = function(body)
     local language
-    body:gsub('^%s*(%b{})', function(match)
+    body = body:gsub('^%s*(%b{})', function(match)
       language = match:sub(2, -2)
       return ''
     end)
