@@ -66,13 +66,15 @@ local process_dir = function(src_dir, doc_dir, silent)
     end
   end
 
-  if path.exists(doc_dir) then
-    say('removing directory at '..doc_dir)
-    dir.rmtree(doc_dir)
+  if not path.exists(doc_dir) then
+    say('making directory at '..doc_dir)
+    dir.makepath(doc_dir)
   end
-  dir.makepath(doc_dir)
+
+  local map = {}
 
   for root, dirs, files in dir.walk(src_dir) do
+    local base_dir = path.basename(root)
     for fname in files:iter() do
       if stringx.endswith(fname, '.lua') then
         local src_file = path.join(root, fname)
