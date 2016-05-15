@@ -4,14 +4,8 @@ local dir = require 'pl.dir'
 local file = require 'pl.file'
 local stringx = require 'pl.stringx'
 
-docroc.processors.module = function(body)
-  local name
-  body:gsub('^%s*(%b{})', function(match)
-    name = match:sub(2, -2)
-    return ''
-  end)
-  return {name=name}
-end
+--- @module docroc.writer
+-- Utilities for converting parsed comments to Markdown files.
 
 local writers = {
   arg = function(el)
@@ -23,15 +17,24 @@ local writers = {
     return d
   end,
   code = function(el)
-    return '```\n'..el.text..'\n```'
+    return '```\n'..(el.language or '')..el.code..'\n```'
   end,
   module = function(el)
-    return '## ' .. el.name
+    return '# ' .. el.text:gsub('^%s+', ''):gsub('%s$', '')
   end
 }
 
 local default_writer = function(el)
   return el.text .. '\n'
+end
+
+local process_context = function(context)
+  local name = context:match('^[local]*%s*[function]*%s*(.*)'):gsub('[^)%w]*$', '')
+  print(name)
+  print(context)
+  local ret = '## ' .. name .. '\n```lua\n' .. context:gsub('%s*=%s*[^%w]+$', '') .. '\n```\n'
+  print(ret)
+  return ret
 end
 
 local process_comment = function(context, tags)
@@ -45,7 +48,7 @@ local process_comment = function(context, tags)
   if is_module then
     return doc
   else
-    return '# `' .. context .. '`\n' .. doc
+    return process_context(context) .. '\n' .. doc
   end
 end
 
@@ -59,6 +62,15 @@ local process_file = function(fname)
   return doc
 end
 
+--- Builds Markdown docs based on source file comments.
+-- 
+-- @arg {string} src_dir - Source directory.
+-- @arg {string} doc_dir - Directory to store the generated markdown files.
+-- @arg {boolean=} silent - Whether to print progress to stdout.
+--
+-- A Markdown file will be generated for each `.lua` source file found in `src_dir`
+-- at the corresponding location in `doc_dir`. For example, `src/foo/bar.lua` will
+-- have a corresponding `src/foo/bar.md`.
 local process_dir = function(src_dir, doc_dir, silent)
   local say = function(str)
     if not silent then

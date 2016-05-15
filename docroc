@@ -37,7 +37,7 @@ writer.process_dir(opt.src_dir, opt.doc_dir)
 local name2category = {}
 
 for root, dirs, files in dir.walk(opt.doc_dir) do
-  for fname in files:iter() do
+  for _, fname in ipairs(files) do
     local name, ext = path.splitext(fname)
     if ext == '.md' then
       local fpath = path.join(root, fname):gsub(opt.doc_dir..'/', '')
@@ -77,5 +77,3 @@ end)
 print(content)
 
 file.write('mkdocs.yml', content)
-
---file.write('mkdocs.yml', content)

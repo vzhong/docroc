@@ -4,6 +4,8 @@
 
 local docroc = {}
 
+--- Extracts comments from a file
+-- @arg {string} filename - path of the file to extract comments from.
 function docroc.process(filename)
   local file = io.open(filename, 'r')
   local text = file:read('*a')
@@ -39,6 +41,7 @@ function docroc.process(filename)
   return comments
 end
 
+--- Defines how different tags are parsed.
 docroc.processors = {
   arg = function(body)
     local name = body:match('^%s*(%w+)') or body:match('^%s*%b{}%s*(%w+)')
@@ -59,19 +62,19 @@ docroc.processors = {
     }
   end,
 
-  returns = function(body)
-    local type
+  module = function(body)
+    return {name=body:match('^%s*(.*)')}
+  end,
+
+  code = function(body)
+    local language
     body:gsub('^%s*(%b{})', function(match)
-      type = match:sub(2, -2)
+      language = match:sub(2, -2)
       return ''
     end)
-    local description = body:match('^%s*(.*)')
-
-    return {
-      type = type,
-      description = description
-    }
-  end
+    local code = body:match('^%s*(.*)')
+    return {language=language, code=code}
+  end,
 }
 
 return docroc

@@ -2,7 +2,7 @@
 # Docker Hub https://registry.hub.docker.com/_/debian/
 # Read more about containers on our dev center
 # http://devcenter.wercker.com/docs/containers/index.html
-box: jimho/lua
+box: 3scale/openresty
 # You can also use services such as databases. Read more on our dev center:
 # http://devcenter.wercker.com/docs/services/index.html
 # services:
@@ -21,15 +21,28 @@ build:
   # http://devcenter.wercker.com/docs/steps/index.html
   steps:
     - script:
-      name: install
+      name: install dependencies
+      code: |
+        apt-get -yqq update
+        apt-get install -yqq python python-pip
+        pip install mkdocs
+    - script:
+      name: install module
       code: |
         luarocks make
     - script:
       name: integration test
       code: |
-        docroc src docs --index README.md
+        ./build_docs.sh
+        mkdocs build --clean
+        touch site/.nojekyll
 deploy:
   steps:
-    - lukevivier/gh-pages:
-      token: $GH_TOKEN
-      basedir: docs
+    - script:
+      name: install dependencies
+      code: |
+        apt-get -yqq update
+        apt-get install -yqq git
+    - lukevivier/gh-pages@0.2.1:
+      token: $GIT_TOKEN
+      basedir: site
