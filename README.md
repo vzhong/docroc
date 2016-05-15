@@ -24,6 +24,20 @@ Docroc can be used both to generate markdown documents from Lua comments or to p
 
 ### Markdown Generation
 
+After installing the Lua module and copying over the `docroc` binary, to generate documentation for your repository:
+
+```
+cd my_repo
+docroc src docs --site_name my_repo_name
+```
+
+This is the minimum command. For more options, check out `docroc -h`. This will generate a corresponding `docs`
+directory in which a Markdown file will be generated for each `.lua` file in a mirroring directory hierarchy.
+
+The documentation for this very repo is generated with `docroc` and `mkdocs`. How meta, right? Check out the
+`.wercker` file on how the documentation is generated.
+
+You can view the generated documentation [here](http://www.victorzhong.com/docroc/).
 
 ### Parsing
 
