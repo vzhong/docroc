@@ -14,7 +14,7 @@ function docroc.process(filename)
   local comments = {}
   text:gsub('%s*%-%-%-(.-)\n([%w\n][^\n%-]*)', function(chunk, context)
     chunk = chunk:gsub('%-%-', '\n'):gsub('\n ', '')
-    chunk = chunk:gsub('^[^@]', '@description %1')
+    chunk = chunk:gsub('^[^@]', '@summary %1')
     context = context:match('[^\n]+')
 
     -- catch descriptions denoted by multiple linebreaks
@@ -26,15 +26,20 @@ function docroc.process(filename)
       local processor = docroc.processors[name]
       local tag = processor and processor(body) or {}
       tag.tag = name
-      tag.text = body:gsub('\n+', '\n')
+      tag.text = body:gsub('\n+', '\n'):gsub('^%s+', ''):gsub('%s+$', '')
       tags[name] = tags[name] or {}
       table.insert(tags[name], tag)
       table.insert(tags, tag)
     end)
 
+    local before_context = text:sub(1, text:find(context, 1, true))
+    local _, before_nlines = before_context:gsub('\n', '')
+
     table.insert(comments, {
       tags = tags,
-      context = context
+      context = context,
+      filename = filename,
+      linenum = before_nlines + 1,
     })
   end)
 
@@ -64,6 +69,16 @@ docroc.processors = {
 
   module = function(body)
     return {name=body:match('^%s*(.*)')}
+  end,
+
+  returns = function(body)
+    local type 
+    body = body:gsub('^%s*(%b{})', function(match)
+      type = match:sub(2, -2)
+      return ''
+    end)
+    local description = body:match('^%s*(.*)')
+    return {type=type, description=description}
   end,
 
   code = function(body)

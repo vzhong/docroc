@@ -7,6 +7,7 @@ Generate documentations recursively for a directory.
   <doc_dir> (string) Documentation directory
   --config  (string) Mkdocs config file. If specified, then pages will be appended to the config file.
   --index (default '')  File to use to create homepage.
+  --github_src_dir (default '')  URL to the source blob directory on github.
 ]]
 
 local path = require 'pl.path'
@@ -21,7 +22,7 @@ end
 local pages = {}
 
 local writer = require 'docroc.writer'
-writer.process_dir(opt.src_dir, opt.doc_dir)
+writer.process_dir(opt.src_dir, opt.doc_dir, opt.github_src_dir)
 
 local name2category = {}
 
@@ -57,12 +58,12 @@ end
 table.insert(pages, 1, {Home='index.md'})
 
 if opt.config then
+  local config = yaml.load(file.read(opt.config))
   local content = yaml.dump{pages=pages}
   -- this hack is for mkdocs weirdness
   content = content:gsub('%- (%w+): ([^\n]+)', function(a, b)
     return "- '"..a.."': '"..b.."'"
   end)
-  local config = yaml.load(file.read(opt.config))
   config.pages = nil
   content = yaml.dump(config) .. content
   content = content:gsub('[^\n]%-+\n', '')
