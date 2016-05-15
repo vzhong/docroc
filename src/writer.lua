@@ -10,12 +10,24 @@ local stringx = require 'pl.stringx'
 local writer = {}
 docroc.writer = writer
 
+local say_silent = false
+local say = function(str)
+  if not say_silent then
+    print(str)
+  end
+end
+
+
 local writers = {
   arg = function(el)
     local d = '- `' .. el.name .. '` (`' .. el.type .. '`): ' .. el.description
     if not stringx.endswith(d, '.') then d = d .. '.' end
     if el.optional then
-      d = d .. ' Optional, default: `' .. (el.default or 'nil') .. '`.'
+      d = d .. ' Optional'
+      if el.default and el.default ~= '' then
+        d = d .. ', Default: `' .. (el.default or 'nil') .. '`'
+      end
+      d = d .. '.'
     end
     return d
   end,
@@ -23,7 +35,7 @@ local writers = {
     return '```'..(el.language or '') .. '\n'..el.code..'\n```'
   end,
   returns = function(el)
-    return '- '..('`'..el.type..'`' or '')..el.description
+    return '- '..('(`'..el.type..'`)' or '')..' '..el.description
   end,
   module = function(el)
     return '# ' .. el.text:gsub('^%s+', ''):gsub('%s$', '')
@@ -51,6 +63,7 @@ local process_comment = function(tags)
     if tag.tag ~= 'module' then
       local process_tag = writers[tag.tag] or default_writer
       local section = sections[tag.tag] or sections.other
+      say('\t\tprocessing tag '..tag.tag)
       table.insert(section, process_tag(tag) .. '\n')
     end
   end
@@ -69,28 +82,29 @@ local process_comment = function(tags)
     doc = new_section(doc)
     doc = doc .. s
   end
-  print(doc)
   return doc
 end
 
 local process_header = function(comment, opt)
   local doc = ''
+  say('\tprocessing comment '..comment.filename..':'..comment.linenum)
   if comment.tags.module then
     doc = doc .. writers.module(comment.tags.module[1]) .. '\n'
   else
-    local name = comment.context:match('^[local]*%s*[function]*%s*(.*)'):gsub('[^)%w]*$', '')
+    local name = comment.context:match('^[local]*%s*[function]*%s*(.*)'):gsub('[^)%w]*$', ''):gsub('_', '\\_')
     doc = doc .. '## ' .. name .. '\n'
-    doc = doc .. '```\n' .. comment.context:gsub('%s*=%s*[^%w]+$', '') .. '\n```\n'
     if opt.github_src_dir then
-      doc = doc .. '[View source](' .. comment.filename:gsub(opt.src_dir, opt.github_src_dir) .. '#L' .. comment.linenum .. ')\n'
+      doc = doc .. '[View source](' .. comment.filename:gsub(opt.src_dir, opt.github_src_dir)
+      doc = doc .. '#L' .. comment.linenum .. ')\n'
     end
-
+    -- doc = doc .. '```\n' .. comment.context:gsub('%s*=%s*[^%w]+$', '') .. '\n```\n'
   end
   return doc
 end
 
 local process_file = function(fname, opt)
   assert(fname, 'file '..fname.. ' doesnt exist!')
+  say('processing '..fname)
   local comments = docroc.process(fname)
   local doc = ''
   for _, comment in ipairs(comments) do
@@ -119,12 +133,7 @@ end
 -- writer.process_dir('src', 'docs', 'http://github.com/vzhong/docroc/blob/master/src/')
 function writer.process_dir(src_dir, doc_dir, github_src_dir, silent)
   local opt = {github_src_dir=github_src_dir, silent=silent, src_dir=src_dir}
-  local say = function(str)
-    if not silent then
-      print(str)
-    end
-  end
-
+  say_silent = silent
   if not path.exists(doc_dir) then
     say('making directory at '..doc_dir)
     dir.makepath(doc_dir)
@@ -135,7 +144,6 @@ function writer.process_dir(src_dir, doc_dir, github_src_dir, silent)
     for _, fname in ipairs(files) do
       if stringx.endswith(fname, '.lua') then
         local src_file = path.join(root, fname)
-        say('processing '..src_file)
         local proc = process_file(src_file, opt)
         local doc_file = src_file:gsub(src_dir, doc_dir):gsub('.lua', '.md')
         local parent_dir = path.dirname(doc_file)
