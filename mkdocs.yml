@@ -1,0 +1,9 @@
+copyright: Copyright 2016 Victor Zhong (victor@victorzhong.com)
+site_description: Documentation for docroc
+repo_name: https://github.com/vzhong/docroc
+site_author: Victor Zhong (victor@victorzhong.com)
+site_name: docroc
+pages:
+- 'Home': 'index.md'
+- 'docroc': 'docroc.md'
+- 'writer': 'writer.md'

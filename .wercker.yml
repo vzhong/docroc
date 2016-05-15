@@ -33,7 +33,7 @@ build:
     - script:
       name: integration test
       code: |
-        ./build_docs.sh
+        ./docroc src docs --index README.md --config mkdocs.yml
         mkdocs build --clean
         touch site/.nojekyll
 deploy:

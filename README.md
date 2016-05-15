@@ -28,11 +28,13 @@ After installing the Lua module and copying over the `docroc` binary, to generat
 
 ```
 cd my_repo
-docroc src docs --site_name my_repo_name
+docroc src docs --index README.md --config mkdocs.yml
 ```
 
-This is the minimum command. For more options, check out `docroc -h`. This will generate a corresponding `docs`
+For help on the arguments to `docroc`, check out `docroc -h`. This will generate a corresponding `docs`
 directory in which a Markdown file will be generated for each `.lua` file in a mirroring directory hierarchy.
+Because `--config` is specified, `mkdocs.yml` will be populated with a directory listing of the generated
+Markdown files.
 
 The documentation for this very repo is generated with `docroc` and `mkdocs`. How meta, right? Check out the
 `.wercker` file on how the documentation is generated.

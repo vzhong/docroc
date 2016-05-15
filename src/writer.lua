@@ -30,11 +30,7 @@ end
 
 local process_context = function(context)
   local name = context:match('^[local]*%s*[function]*%s*(.*)'):gsub('[^)%w]*$', '')
-  print(name)
-  print(context)
-  local ret = '## ' .. name .. '\n```lua\n' .. context:gsub('%s*=%s*[^%w]+$', '') .. '\n```\n'
-  print(ret)
-  return ret
+  return '## ' .. name .. '\n```lua\n' .. context:gsub('%s*=%s*[^%w]+$', '') .. '\n```\n'
 end
 
 local process_comment = function(context, tags)
