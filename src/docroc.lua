@@ -26,14 +26,19 @@ function docroc.process(filename)
       local processor = docroc.processors[name]
       local tag = processor and processor(body) or {}
       tag.tag = name
-      tag.text = body:gsub('\n+', '\n'):gsub('^%s+', ''):gsub('%s+$', '')
+      tag.text = body:gsub('\n+', '\n\n'):gsub('^%s+', ''):gsub('%s+$', '')
       tags[name] = tags[name] or {}
       table.insert(tags[name], tag)
       table.insert(tags, tag)
     end)
 
-    local before_context = text:sub(1, text:find(context, 1, true))
-    local _, before_nlines = before_context:gsub('\n', '')
+    local _, before_nlines
+    if context then
+      local before_context = text:sub(1, text:find(context, 1, true))
+      _, before_nlines = before_context:gsub('\n', '')
+    else
+      before_nlines = 0
+    end
 
     table.insert(comments, {
       tags = tags,
@@ -49,7 +54,7 @@ end
 --- Defines how different tags are parsed.
 docroc.processors = {
   arg = function(body)
-    local name = body:match('^%s*(%w+)') or body:match('^%s*%b{}%s*(%w+)')
+    local name = body:match('^%s*(%w+)') or body:match('^%s*%b{}%s*([^%-]+)')
     local description = body:match('%-%s*(.*)$')
     local optional, default
     local type = body:match('^%s*(%b{})'):sub(2, -2):gsub('(%=)(.*)', function(_, value)
@@ -88,7 +93,7 @@ docroc.processors = {
       return ''
     end)
     local code = body:match('^%s*(.*)')
-    return {language=language, code=code}
+    return {language=language or 'lua', code=code}
   end,
 }
 

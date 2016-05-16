@@ -38,7 +38,7 @@ local writers = {
     return '- '..('(`'..el.type..'`)' or '')..' '..el.description
   end,
   module = function(el)
-    return '# ' .. el.text:gsub('^%s+', ''):gsub('%s$', '')
+    return '# ' .. el.name
   end,
 }
 
