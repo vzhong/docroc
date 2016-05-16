@@ -1,8 +1,8 @@
  package = "docRoc"
- version = "1.0-1"
+ version = "0.1-1"
  source = {
     url = "git://github.com/vzhong/docroc",
-    tag = "v1.0",
+    tag = "v0.1",
  }
  description = {
     summary = "Tools for generating and parsing Lua documentation for Mkdocs.",
