@@ -1,0 +1,84 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "docroc\n\n\nA documentation generator for Lua. Works with Markdown, Mkdocs, and Readthedocs.\n\n\n\n\nInstallation\n\n\nhttps://github.com/vzhong/docroc.git\ncd docroc\nluarocks make\n\n\n\n\nFor Markdown generation, copy the \ndocroc\n file to somewhere on your path.\n\n\ncp docroc /usr/local/bin/docroc\n\n\n\n\nUsage\n\n\nDocroc can be used both to generate markdown documents from Lua comments or to parse Lua comments programmatically.\n\n\nMarkdown Generation\n\n\nAfter installing the Lua module and copying over the \ndocroc\n binary, to generate documentation for your repository:\n\n\ncd my_repo\ndocroc src docs --index README.md --config mkdocs.yml\n\n\n\n\nFor help on the arguments to \ndocroc\n, check out \ndocroc -h\n. This will generate a corresponding \ndocs\n\ndirectory in which a Markdown file will be generated for each \n.lua\n file in a mirroring directory hierarchy.\nBecause \n--config\n is specified, \nmkdocs.yml\n will be populated with a directory listing of the generated\nMarkdown files.\n\n\nThe documentation for this very repo is generated with \ndocroc\n and \nmkdocs\n. How meta, right? Check out the\n\n.wercker\n file on how the documentation is generated.\n\n\nYou can view the generated documentation \nhere\n.\n\n\nParsing\n\n\nlocal docroc = require 'docroc'\nlocal comments = docroc.process('file.lua')\n\n\n\n\ncomments\n is now a table of comment blocks in the file, each with a table of \ntags\n and a \ncontext\n\nkey. The \ntags\n table is an array of the tags, but also groups the tags by type. The \ncontext\n key\nis a string containing the contents of the line after the comment block.\n\n\nNotes on parsing:\n\n\n\n\nA comment block must start with three dashes. It ends on the next non-commented line.\n\n\nTags are recognized as any sequence of letters that start with \n@\n, and continue until the next\ntag is encountered. The first tag is implicitly \n@description\n.\n\n\n\n\nExample\n\n\nGo from this:\n\n\n--- Displays a friendly greeting.\n-- @arg {string=} name - The person to greet.\n-- @returns {number}\nfunction greet(name)\n  print('hi', name)\n  return 3\nend\n\n\n\n\nto this:\n\n\n{\n  {\n    context = 'function greet(name)',\n    tags = {\n      [1] = {\n        tag = 'description',\n        text = 'The person to greet.'\n      },\n      [2] = {\n        tag = 'arg',\n        text = '{string=} name - The person to greet',\n        type = 'string',\n        optional = true,\n        name = 'name',\n        description = 'The person to greet.'\n      },\n      [3] = {\n        tag = 'returns',\n        text = '{number}',\n        type = 'number'\n      },\n      description = {...},\n      arg = {...},\n      returns = {...}\n    }\n  }\n}\n\n\n\n\nProcessors\n\n\nBy default, when docroc finds a tag, it creates an entry with two keys: \ntag\n and \ntext\n.  \ntag\n\ncontains the name of the tag and \ntext\n contains the text after the tag.  This behavior can be\nextended using the \ndocroc.processors\n table:\n\n\ndocroc.processors.customTag = function(body)\n  return {\n    numberOfCharacters = #body,\n    reversed = body:reverse()\n  }\nend\n\n\n\n\nNow, if we process a file containing the following:\n\n\n--- @customTag hello world\nlocal test\n\n\n\n\nWe would get this:\n\n\n{\n  tag = 'customTag',\n  text = 'hello world',\n  numberOfCharacters = 11,\n  reversed = 'dlrow olleh'\n}\n\n\n\n\nFor convenience, docroc provides a default set of custom processors:\n\n\n\n\n@arg\n: Collects information on an argument to a function, including the \ntype\n of the argument,\nwhether or not it is \noptional\n, whether or not it has a \ndefault\n value, its \nname\n, and a\n\ndescription\n.  The expected structure is \n@arg {\ntype\n=\ndefault\n} \nname\n - \ndescription\n, all of\nwhich are optional.  An equals sign after the type represents an optional argument.\n\n\n@returns\n: Similar to \n@arg\n, contains information on a return value of the function.  It\nreturns \ntype\n and \ndescription\n keys, and expects a structure of \n@returns {\ntype\n} \ndescription\n.\n\n\n\n\nRelated\n\n\n\n\nLocco\n\n\nLDoc\n\n\n\n\nLicense\n\n\nMIT, see \nLICENSE\n for details.", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#docroc", 
+            "text": "A documentation generator for Lua. Works with Markdown, Mkdocs, and Readthedocs.", 
+            "title": "docroc"
+        }, 
+        {
+            "location": "/#installation", 
+            "text": "https://github.com/vzhong/docroc.git\ncd docroc\nluarocks make  For Markdown generation, copy the  docroc  file to somewhere on your path.  cp docroc /usr/local/bin/docroc", 
+            "title": "Installation"
+        }, 
+        {
+            "location": "/#usage", 
+            "text": "Docroc can be used both to generate markdown documents from Lua comments or to parse Lua comments programmatically.", 
+            "title": "Usage"
+        }, 
+        {
+            "location": "/#markdown-generation", 
+            "text": "After installing the Lua module and copying over the  docroc  binary, to generate documentation for your repository:  cd my_repo\ndocroc src docs --index README.md --config mkdocs.yml  For help on the arguments to  docroc , check out  docroc -h . This will generate a corresponding  docs \ndirectory in which a Markdown file will be generated for each  .lua  file in a mirroring directory hierarchy.\nBecause  --config  is specified,  mkdocs.yml  will be populated with a directory listing of the generated\nMarkdown files.  The documentation for this very repo is generated with  docroc  and  mkdocs . How meta, right? Check out the .wercker  file on how the documentation is generated.  You can view the generated documentation  here .", 
+            "title": "Markdown Generation"
+        }, 
+        {
+            "location": "/#parsing", 
+            "text": "local docroc = require 'docroc'\nlocal comments = docroc.process('file.lua')  comments  is now a table of comment blocks in the file, each with a table of  tags  and a  context \nkey. The  tags  table is an array of the tags, but also groups the tags by type. The  context  key\nis a string containing the contents of the line after the comment block.  Notes on parsing:   A comment block must start with three dashes. It ends on the next non-commented line.  Tags are recognized as any sequence of letters that start with  @ , and continue until the next\ntag is encountered. The first tag is implicitly  @description .", 
+            "title": "Parsing"
+        }, 
+        {
+            "location": "/#example", 
+            "text": "Go from this:  --- Displays a friendly greeting.\n-- @arg {string=} name - The person to greet.\n-- @returns {number}\nfunction greet(name)\n  print('hi', name)\n  return 3\nend  to this:  {\n  {\n    context = 'function greet(name)',\n    tags = {\n      [1] = {\n        tag = 'description',\n        text = 'The person to greet.'\n      },\n      [2] = {\n        tag = 'arg',\n        text = '{string=} name - The person to greet',\n        type = 'string',\n        optional = true,\n        name = 'name',\n        description = 'The person to greet.'\n      },\n      [3] = {\n        tag = 'returns',\n        text = '{number}',\n        type = 'number'\n      },\n      description = {...},\n      arg = {...},\n      returns = {...}\n    }\n  }\n}", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/#processors", 
+            "text": "By default, when docroc finds a tag, it creates an entry with two keys:  tag  and  text .   tag \ncontains the name of the tag and  text  contains the text after the tag.  This behavior can be\nextended using the  docroc.processors  table:  docroc.processors.customTag = function(body)\n  return {\n    numberOfCharacters = #body,\n    reversed = body:reverse()\n  }\nend  Now, if we process a file containing the following:  --- @customTag hello world\nlocal test  We would get this:  {\n  tag = 'customTag',\n  text = 'hello world',\n  numberOfCharacters = 11,\n  reversed = 'dlrow olleh'\n}  For convenience, docroc provides a default set of custom processors:   @arg : Collects information on an argument to a function, including the  type  of the argument,\nwhether or not it is  optional , whether or not it has a  default  value, its  name , and a description .  The expected structure is  @arg { type = default }  name  -  description , all of\nwhich are optional.  An equals sign after the type represents an optional argument.  @returns : Similar to  @arg , contains information on a return value of the function.  It\nreturns  type  and  description  keys, and expects a structure of  @returns { type }  description .", 
+            "title": "Processors"
+        }, 
+        {
+            "location": "/#related", 
+            "text": "Locco  LDoc", 
+            "title": "Related"
+        }, 
+        {
+            "location": "/#license", 
+            "text": "MIT, see  LICENSE  for details.", 
+            "title": "License"
+        }, 
+        {
+            "location": "/writer/", 
+            "text": "writer\n\n\nUtilities for converting parsed comments to Markdown files.\n\n\nwriter.process_dir(src_dir, doc_dir, github_src_dir, silent)\n\n\nView source\n\n\nBuilds Markdown docs based on source file comments.\n\n\nArguments:\n\n\n\n\nsrc_dir\n (\nstring\n): Source directory.\n\n\ndoc_dir\n (\nstring\n): Directory to store the generated markdown files.\n\n\ngithub_src_dir\n (\nstring\n): URL to the Github source directory. Optional.\n\n\nsilent\n (\nboolean\n): Whether to print progress to stdout. Optional.\n\n\n\n\nReturns:\n\n\n\n\n(\ntable[string]\n) A table of generated Markdown files.\n\n\n\n\nA Markdown file will be generated for each \n.lua\n source file found in \nsrc_dir\n\n\nat the corresponding location in \ndoc_dir\n. For example, \nsrc/foo/bar.lua\n will\n\n\nhave a corresponding \nsrc/foo/bar.md\n.\n\n\nExample:\n\n\nlocal writer = require 'docdoc.writer'\nwriter.process_dir('src', 'docs', 'http://github.com/vzhong/docroc/blob/master/src/')", 
+            "title": "writer"
+        }, 
+        {
+            "location": "/writer/#writer", 
+            "text": "Utilities for converting parsed comments to Markdown files.", 
+            "title": "writer"
+        }, 
+        {
+            "location": "/writer/#writerprocess95dirsrc95dir-doc95dir-github95src95dir-silent", 
+            "text": "View source  Builds Markdown docs based on source file comments.  Arguments:   src_dir  ( string ): Source directory.  doc_dir  ( string ): Directory to store the generated markdown files.  github_src_dir  ( string ): URL to the Github source directory. Optional.  silent  ( boolean ): Whether to print progress to stdout. Optional.   Returns:   ( table[string] ) A table of generated Markdown files.   A Markdown file will be generated for each  .lua  source file found in  src_dir  at the corresponding location in  doc_dir . For example,  src/foo/bar.lua  will  have a corresponding  src/foo/bar.md .  Example:  local writer = require 'docdoc.writer'\nwriter.process_dir('src', 'docs', 'http://github.com/vzhong/docroc/blob/master/src/')", 
+            "title": "writer.process_dir(src_dir, doc_dir, github_src_dir, silent)"
+        }, 
+        {
+            "location": "/docroc/", 
+            "text": "docroc.process(filename)\n\n\nView source\n\n\nExtracts comments from a file\n\n\nArguments:\n\n\n\n\nfilename\n (\nstring\n): path of the file to extract comments from.\n\n\n\n\ndocroc.processors\n\n\nView source\n\n\nDefines how different tags are parsed.", 
+            "title": "docroc"
+        }, 
+        {
+            "location": "/docroc/#docrocprocessfilename", 
+            "text": "View source  Extracts comments from a file  Arguments:   filename  ( string ): path of the file to extract comments from.", 
+            "title": "docroc.process(filename)"
+        }, 
+        {
+            "location": "/docroc/#docrocprocessors", 
+            "text": "View source  Defines how different tags are parsed.", 
+            "title": "docroc.processors"
+        }
+    ]
+}
