@@ -1,6 +1,6 @@
 # docroc
 
-Minimal library that parses formatted Lua comments and returns them as a table.
+A documentation generator for Lua. Works with Markdown, Mkdocs, and Readthedocs.
 
 [![wercker status](https://app.wercker.com/status/78494385c64939804e31a3ff0992c4fa/s/master "wercker status")](https://app.wercker.com/project/bykey/78494385c64939804e31a3ff0992c4fa)
 
